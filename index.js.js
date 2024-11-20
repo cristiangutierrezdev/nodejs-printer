@@ -137,9 +137,14 @@ class ImprimirEpl {
   imprimir(etiqueta, impresora, impresion = true, informacion = false) {
     const fs = require("fs");
     const os = require("os");
+    const path = require("path"); // Añade esta línea
     const exec = require("child_process").exec;
 
-    const archivoTemporal = fs.mkdtempSync(`${os.tmpdir()}/Eti`);
+    // Crea el directorio temporal
+    const tempDir = fs.mkdtempSync(`${os.tmpdir()}/Eti`);
+    // Crea un archivo dentro del directorio temporal
+    const archivoTemporal = path.join(tempDir, "etiqueta.txt");
+
     fs.writeFileSync(archivoTemporal, etiqueta);
 
     if (impresion) {
@@ -154,7 +159,9 @@ class ImprimirEpl {
       );
     }
 
+    // Limpia tanto el archivo como el directorio
     fs.unlinkSync(archivoTemporal);
+    fs.rmdirSync(tempDir);
 
     if (informacion) {
       let informe = `**************************************************************************`;
@@ -339,7 +346,7 @@ const imprimirEpl = new ImprimirEpl();
 const etiqueta = imprimirEpl.construirEtiqueta("Test Label", 2);
 console.log(etiqueta);
 
-imprimirEpl.imprimir(etiqueta, "Microsoft Print to PDF", false, true);
+imprimirEpl.imprimir(etiqueta, "Microsoft Print to PDF", true, true);
 
 // // Definir y construir una etiqueta con información específica
 // const fecha = new Date().toLocaleDateString();
